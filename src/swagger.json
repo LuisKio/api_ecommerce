@@ -1,0 +1,828 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ECOMMERCE API",
+        "description": "Es una API para crear productos, consultarlos, agregarlos al carrito y realizar una compra.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/v1/user/create": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Crea un nuevo usuario en el ecommerce",
+                "description": "Con este endpoint se podra crear un nuevo usuario",
+                "requestBody": {
+                    "description": "Los datos que se necesitan para crear un usuario son: Username, Email y Password",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/register"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "created"
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "El email ya esta en uso"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Database connection error"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Autenticacion del usuario en el sistema",
+                "description": "Con este endpoint se podra autenticar para obtener el token",
+                "requestBody": {
+                    "description": "Los datos para autenticarse son: email y password",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/login"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "username": {
+                                            "type": "string",
+                                            "example": "laloasdf@gmail.com"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "example": "password0234@A"
+                                        },
+                                        "avatar": {
+                                            "type": "string",
+                                            "example": "https://www.ima.com"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "asdfasdfasfdhasfuhiasdufasd.3478as8sf78asdf.87asdf"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Alguno de sus datos es incorrecto"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/user/update": {
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "sumary": "Actualizacion del username del usuario",
+                "description": "Para usar este endpoint se tiene que estar autenticado y pasar como paramentro el username, este debe de ser mayor a tres caracteres",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "requestBody": {
+                    "description": "El nombre de usuario debe ser mayor a tres caracteres",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/updateUserName"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated"
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "integer",
+                                            "example": "409"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "El username ya esta en uso"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "User not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/product": {
+            "post": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Creacion de un producto",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "requestBody": {
+                    "description": "El nombre del producto debe de ser mayor a cinco caracteres, la descripcion no puede estar vacia, y el precio debe de ser mayor a cero",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/createdProduct"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Product created"
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/product/update": {
+            "put": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Actualizacion de la descripcion de un producto",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "requestBody": {
+                    "description": "La descripcion no puede estar vacia",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/updateProduct"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Updated product"
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/products": {
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Obtiene todos los productos con un precio mayor a cero",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "example": "celular"
+                                            },
+                                            "description": {
+                                                "type": "string",
+                                                "example": "Informacion del celular"
+                                            },
+                                            "price": {
+                                                "type": "float",
+                                                "example": 15.5
+                                            },
+                                            "availableQty": {
+                                                "type": "integer",
+                                                "example": 15
+                                            },
+                                            "User": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "username": {
+                                                        "type": "string",
+                                                        "example": "laloeduar"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/car/addProduct": {
+            "post": {
+                "tags": [
+                    "Car"
+                ],
+                "summary": "Agrega un producto al carrito",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "requestBody": {
+                    "description": "Debe de contener la cantidad y el id del producto.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/addProduct"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Product added to cart"
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/car/products": {
+            "get": {
+                "tags": [
+                    "Car"
+                ],
+                "summary": "Muestra los productos agregados en el carrito",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "productId": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "quantity": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "Product": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "celular"
+                                                    },
+                                                    "price": {
+                                                        "type": "float",
+                                                        "example": 15.5
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/car/purchase": {
+            "get": {
+                "tags": [
+                    "Car"
+                ],
+                "summary": "Realiza la compra de todos los productos que estan en el carrito",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compra exitosa"
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/order": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Muestra las ordenes del usuario logeado",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "totalPrice": {
+                                                "type": "float",
+                                                "example": 15.5
+                                            },
+                                            "status": {
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "createdAt": {
+                                                "type": "date",
+                                                "example": "2023-04-08T06:21:43.975Z"
+                                            },
+                                            "updatedAt": {
+                                                "type": "date",
+                                                "example": "2023-04-08T06:21:43.975Z"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/order/products": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Muestra las ordenes con el nombre de los productos",
+                "description": "Para usar este endpoint se tiene que estar autenticado",
+                "parameters": [
+                    {
+                        "name": "access-token",
+                        "in": "header",
+                        "required": true,
+                        "type": "string",
+                        "description": "El token que se genera cuando se logea en la API"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Orders",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "orderId": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "quantity": {
+                                                "type": "integer",
+                                                "example": 2
+                                            },
+                                            "price": {
+                                                "type": "float",
+                                                "example": 25.5
+                                            },
+                                            "createdAt": {
+                                                "type": "date",
+                                                "example": "2023-04-08T06:21:43.975Z"
+                                            },
+                                            "Product": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "celular"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string",
+                                            "example": "JsonWebTokenError"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "invalid token"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "register": {
+                "description": "El username al menos debe de tener 3 caracteres. El password debe tener al menos 8 caracteres, entre ellos una letra mayuscula, un numero y un caracter especial.",
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "nuevoUsuario"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "laloeduar208+12@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "password09A@"
+                    }
+                }
+            },
+            "login": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "laloeduasdf@gmail.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "password09A@"
+                    }
+                }
+            },
+            "updateUserName": {
+                "description": "El username al menos debe de tener 3 caracteres. El password debe tener al menos 8 caracteres, entre ellos una letra mayuscula, un numero y un caracter especial.",
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "example": "nuevoUsuario"
+                    }
+                }
+            },
+            "createdProduct": {
+                "descripcion": "El nombre del producto debe de ser mayor a cinco caracteres, la descripcion no puede estar vacia, y el precio debe de ser mayor a cero",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Iphone Nuevo"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Es un telefono nuevo"
+                    },
+                    "price": {
+                        "type": "float",
+                        "example": 25.5
+                    },
+                    "availableQty": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "productImage": {
+                        "type": "string",
+                        "example": "https://www.imagen.com"
+                    }
+                }
+            },
+            "updateProduct": {
+                "descripcion": "La descripcion no puede estar vacia, el usuario debe de haber sido el que creo el producto.",
+                "type": "object",
+                "properties": {
+                    "productId": {
+                        "type": "string",
+                        "example": "1"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Actualizamos la informacion del iphone"
+                    }
+                }
+            },
+            "addProduct": {
+                "description": "Debe de contener la cantidad y el id del producto.",
+                "type": "object",
+                "properties": {
+                    "productId": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "quantity": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                }
+            }
+        }
+    }
+}
