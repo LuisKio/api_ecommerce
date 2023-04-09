@@ -23,7 +23,7 @@ class ProductServices {
                     model: Users,
                     attributes: ['username']
                 }],
-                attributes: ['name', 'description', 'price', 'availableQty'],
+                attributes: ['id', 'name', 'description', 'price', 'availableQty'],
                 where: {
                     price: {
                         [Op.gt]: 0
